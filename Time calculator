@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>时间间隔计算器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#22c55e',
+                        secondary: '#16a34a',
+                        accent: '#dcfce7',
+                        neutral: '#f0fdf4',
+                        error: '#ef4444',
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .bg-gradient-green {
+                background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            }
+            .card-shadow {
+                box-shadow: 0 10px 25px -5px rgba(34, 197, 94, 0.1), 0 8px 10px -6px rgba(34, 197, 94, 0.1);
+            }
+            .input-focus {
+                @apply focus:ring-2 focus:ring-primary/50 focus:border-primary transition duration-300;
+            }
+            .btn-hover {
+                @apply hover:shadow-lg hover:shadow-primary/30 transform hover:-translate-y-1 transition-all duration-300;
+            }
+            .countdown-pulse {
+                animation: pulse 2s infinite;
+            }
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+                100% { transform: scale(1); }
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-neutral min-h-screen flex flex-col">
+    <!-- 顶部导航 -->
+    <header class="bg-gradient-green text-white py-4 px-6 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-clock text-2xl"></i>
+                <h1 class="text-[clamp(1.5rem,3vw,2rem)] font-bold">时间间隔计算器</h1>
+            </div>
+            <nav>
+                <ul class="hidden md:flex space-x-6">
+                    <li><a href="#" class="hover:text-accent transition-colors duration-300">主页</a></li>
+                    <li><a href="#" class="hover:text-accent transition-colors duration-300">关于</a></li>
+                    <li><a href="#" class="hover:text-accent transition-colors duration-300">帮助</a></li>
+                </ul>
+                <button class="md:hidden text-xl">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow container mx-auto px-4 py-8 md:py-12">
+        <div class="max-w-2xl mx-auto">
+            <!-- 信息卡片 -->
+            <div class="bg-white rounded-2xl p-6 md:p-8 card-shadow mb-8">
+                <div class="text-center mb-6">
+                    <h2 class="text-[clamp(1.25rem,2vw,1.75rem)] font-bold text-gray-800 mb-2">计算时间间隔</h2>
+                    <p class="text-gray-600">选择起始时间和结束时间，计算它们之间的时间间隔</p>
+                </div>
+                
+                <!-- 时间选择表单 -->
+                <form id="timeForm" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="startDate" class="block text-sm font-medium text-gray-700 mb-2">起始日期</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                                    <i class="fa-solid fa-calendar"></i>
+                                </span>
+                                <input type="date" id="startDate" name="startDate" 
+                                    class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 input-focus bg-white">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="startTime" class="block text-sm font-medium text-gray-700 mb-2">起始时间</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                                    <i class="fa-solid fa-clock"></i>
+                                </span>
+                                <input type="time" id="startTime" name="startTime" 
+                                    class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 input-focus bg-white">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="endDate" class="block text-sm font-medium text-gray-700 mb-2">结束日期</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                                    <i class="fa-solid fa-calendar-check"></i>
+                                </span>
+                                <input type="date" id="endDate" name="endDate" 
+                                    class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 input-focus bg-white">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="endTime" class="block text-sm font-medium text-gray-700 mb-2">结束时间</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                                    <i class="fa-solid fa-clock"></i>
+                                </span>
+                                <input type="time" id="endTime" name="endTime" 
+                                    class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 input-focus bg-white">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-wrap justify-center gap-4">
+                        <button type="submit" id="calculateBtn" 
+                            class="bg-primary hover:bg-secondary text-white font-medium py-3 px-8 rounded-xl btn-hover inline-flex items-center space-x-2">
+                            <i class="fa-solid fa-calculator"></i>
+                            <span>计算间隔</span>
+                        </button>
+                        <button type="button" id="nowBtn" 
+                            class="border border-primary text-primary hover:bg-primary hover:text-white font-medium py-3 px-8 rounded-xl transition-colors duration-300 inline-flex items-center space-x-2">
+                            <i class="fa-solid fa-clock"></i>
+                            <span>当前时间</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- 结果显示 -->
+            <div id="resultCard" class="bg-white rounded-2xl p-6 md:p-8 card-shadow opacity-0 transition-all duration-500 transform translate-y-4">
+                <div class="text-center mb-6">
+                    <h3 class="text-[clamp(1.25rem,2vw,1.5rem)] font-bold text-gray-800 mb-2">计算结果</h3>
+                    <div class="w-20 h-1 bg-primary mx-auto rounded-full"></div>
+                </div>
+                
+                <div class="space-y-4 text-center">
+                    <div id="result" class="text-3xl md:text-4xl font-bold text-primary mb-4"></div>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-accent rounded-xl p-4">
+                            <p class="text-sm text-gray-600 mb-1">年</p>
+                            <p id="years" class="text-2xl font-bold text-primary">0</p>
+                        </div>
+                        <div class="bg-accent rounded-xl p-4">
+                            <p class="text-sm text-gray-600 mb-1">月</p>
+                            <p id="months" class="text-2xl font-bold text-primary">0</p>
+                        </div>
+                        <div class="bg-accent rounded-xl p-4">
+                            <p class="text-sm text-gray-600 mb-1">日</p>
+                            <p id="days" class="text-2xl font-bold text-primary">0</p>
+                        </div>
+                        <div class="bg-accent rounded-xl p-4">
+                            <p class="text-sm text-gray-600 mb-1">小时</p>
+                            <p id="hours" class="text-2xl font-bold text-primary">0</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                        <div class="bg-accent rounded-xl p-4">
+                            <p class="text-sm text-gray-600 mb-1">分钟</p>
+                            <p id="minutes" class="text-2xl font-bold text-primary">0</p>
+                        </div>
+                        <div class="bg-accent rounded-xl p-4">
+                            <p class="text-sm text-gray-600 mb-1">秒</p>
+                            <p id="seconds" class="text-2xl font-bold text-primary">0</p>
+                        </div>
+                        <div class="bg-accent rounded-xl p-4">
+                            <p class="text-sm text-gray-600 mb-1">总天数</p>
+                            <p id="totalDays" class="text-2xl font-bold text-primary">0</p>
+                        </div>
+                        <div class="bg-accent rounded-xl p-4">
+                            <p class="text-sm text-gray-600 mb-1">总小时</p>
+                            <p id="totalHours" class="text-2xl font-bold text-primary">0</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <button id="resetBtn" 
+                        class="border border-primary text-primary hover:bg-primary hover:text-white font-medium py-2 px-6 rounded-xl transition-colors duration-300 inline-flex items-center space-x-2">
+                        <i class="fa-solid fa-refresh"></i>
+                        <span>重新计算</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 倒计时显示 -->
+            <div id="countdownCard" class="mt-8 bg-white rounded-2xl p-6 md:p-8 card-shadow opacity-0 transition-all duration-500 transform translate-y-4">
+                <div class="text-center mb-6">
+                    <h3 class="text-[clamp(1.25rem,2vw,1.5rem)] font-bold text-gray-800 mb-2">倒计时</h3>
+                    <p id="countdownTo" class="text-gray-600">距离 <span class="font-medium text-primary">--</span> 还有：</p>
+                    <div class="w-20 h-1 bg-primary mx-auto rounded-full"></div>
+                </div>
+                
+                <div id="countdown" class="grid grid-cols-4 gap-4 text-center mb-6">
+                    <div class="bg-accent rounded-xl p-4">
+                        <p id="cdDays" class="text-3xl md:text-4xl font-bold text-primary">00</p>
+                        <p class="text-sm text-gray-600 mt-1">天</p>
+                    </div>
+                    <div class="bg-accent rounded-xl p-4">
+                        <p id="cdHours" class="text-3xl md:text-4xl font-bold text-primary">00</p>
+                        <p class="text-sm text-gray-600 mt-1">时</p>
+                    </div>
+                    <div class="bg-accent rounded-xl p-4">
+                        <p id="cdMinutes" class="text-3xl md:text-4xl font-bold text-primary">00</p>
+                        <p class="text-sm text-gray-600 mt-1">分</p>
+                    </div>
+                    <div class="bg-accent rounded-xl p-4 countdown-pulse">
+                        <p id="cdSeconds" class="text-3xl md:text-4xl font-bold text-primary">00</p>
+                        <p class="text-sm text-gray-600 mt-1">秒</p>
+                    </div>
+                </div>
+                
+                <div id="countdownCompleted" class="hidden">
+                    <div class="text-center py-4">
+                        <i class="fa-solid fa-check-circle text-5xl text-primary mb-3"></i>
+                        <p class="text-xl font-bold text-primary">倒计时已结束！</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-gradient-green text-white py-6 px-4">
+        <div class="container mx-auto text-center">
+            <p class="mb-2">© 2025 时间间隔计算器 | 简洁高效的时间计算工具</p>
+            <div class="flex justify-center space-x-4 mt-3">
+                <a href="#" class="hover:text-accent transition-colors duration-300">
+                    <i class="fa-brands fa-github text-xl"></i>
+                </a>
+                <a href="#" class="hover:text-accent transition-colors duration-300">
+                    <i class="fa-brands fa-twitter text-xl"></i>
+                </a>
+                <a href="#" class="hover:text-accent transition-colors duration-300">
+                    <i class="fa-brands fa-linkedin text-xl"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 错误提示模态框 -->
+    <div id="errorModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 transform scale-95 transition-transform duration-300">
+            <div class="text-center">
+                <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-error/20 text-error mb-4">
+                    <i class="fa-solid fa-exclamation-triangle text-xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">输入错误</h3>
+                <p id="errorMessage" class="text-gray-600 mb-6">起始时间必须早于结束时间</p>
+                <button id="closeErrorBtn" class="bg-primary hover:bg-secondary text-white font-medium py-2 px-6 rounded-xl btn-hover">
+                    确定
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置默认日期为今天
+            const today = new Date();
+            const dateString = today.toISOString().split('T')[0];
+            document.getElementById('startDate').value = dateString;
+            document.getElementById('endDate').value = dateString;
+            
+            // 设置默认时间为当前时间
+            const timeString = today.toTimeString().split(' ')[0].substring(0, 5);
+            document.getElementById('startTime').value = timeString;
+            document.getElementById('endTime').value = timeString;
+            
+            // 计算按钮点击事件
+            document.getElementById('calculateBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                calculateTimeDifference();
+            });
+            
+            // 当前时间按钮点击事件
+            document.getElementById('nowBtn').addEventListener('click', function() {
+                setCurrentDateTime();
+            });
+            
+            // 重置按钮点击事件
+            document.getElementById('resetBtn').addEventListener('click', function() {
+                resetForm();
+            });
+            
+            // 关闭错误提示框按钮点击事件
+            document.getElementById('closeErrorBtn').addEventListener('click', function() {
+                hideErrorModal();
+            });
+            
+            // 设置当前日期和时间
+            function setCurrentDateTime() {
+                const now = new Date();
+                const dateString = now.toISOString().split('T')[0];
+                const timeString = now.toTimeString().split(' ')[0].substring(0, 5);
+                
+                document.getElementById('startDate').value = dateString;
+                document.getElementById('startTime').value = timeString;
+                
+                // 显示结果卡片（带动画）
+                const resultCard = document.getElementById('resultCard');
+                resultCard.classList.remove('opacity-100', 'translate-y-0');
+                resultCard.classList.add('opacity-0', 'translate-y-4');
+                
+                // 隐藏倒计时卡片
+                const countdownCard = document.getElementById('countdownCard');
+                countdownCard.classList.remove('opacity-100', 'translate-y-0');
+                countdownCard.classList.add('opacity-0', 'translate-y-4');
+            }
+            
+            // 计算时间差
+            function calculateTimeDifference() {
+                const startDate = document.getElementById('startDate').value;
+                const startTime = document.getElementById('startTime').value;
+                const endDate = document.getElementById('endDate').value;
+                const endTime = document.getElementById('endTime').value;
+                
+                if (!startDate || !startTime || !endDate || !endTime) {
+                    showErrorModal('请填写完整的起始时间和结束时间');
+                    return;
+                }
+                
+                // 计算时间差
+                const start = new Date(`${startDate}T${startTime}`);
+                const end = new Date(`${endDate}T${endTime}`);
+                
+                if (start >= end) {
+                    showErrorModal('起始时间必须早于结束时间');
+                    return;
+                }
+                
+                const diffMs = end - start;
+                const years = Math.floor(diffMs / 31536000000);
+                const months = Math.floor((diffMs % 31536000000) / 2592000000);
+                const days = Math.floor((diffMs % 2592000000) / 86400000);
+                const hours = Math.floor((diffMs % 86400000) / 3600000);
+                const minutes = Math.floor((diffMs % 3600000) / 60000);
+                const seconds = Math.floor((diffMs % 60000) / 1000);
+                const totalDays = Math.floor(diffMs / 86400000);
+                const totalHours = Math.floor(diffMs / 3600000);
+                
+                // 显示结果
+                displayResults(years, months, days, hours, minutes, seconds, totalDays, totalHours);
+                
+                // 显示结果卡片（带动画）
+                const resultCard = document.getElementById('resultCard');
+                resultCard.classList.remove('opacity-0', 'translate-y-4');
+                resultCard.classList.add('opacity-100', 'translate-y-0');
+                
+                // 滚动到结果卡片
+                resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+                // 如果结束时间大于当前时间，启动倒计时
+                const now = new Date();
+                if (end > now) {
+                    startCountdown(end);
+                } else {
+                    hideCountdown();
+                }
+            }
+            
+            // 显示计算结果
+            function displayResults(years, months, days, hours, minutes, seconds, totalDays, totalHours) {
+                let resultText = '';
+                
+                if (years > 0) resultText += `${years}年 `;
+                if (months > 0) resultText += `${months}月 `;
+                if (days > 0) resultText += `${days}天 `;
+                if (hours > 0) resultText += `${hours}小时 `;
+                if (minutes > 0) resultText += `${minutes}分钟 `;
+                if (seconds > 0) resultText += `${seconds}秒`;
+                
+                if (resultText.trim() === '') {
+                    resultText = '时间间隔小于1秒';
+                }
+                
+                document.getElementById('result').textContent = resultText;
+                document.getElementById('years').textContent = years;
+                document.getElementById('months').textContent = months;
+                document.getElementById('days').textContent = days;
+                document.getElementById('hours').textContent = hours;
+                document.getElementById('minutes').textContent = minutes;
+                document.getElementById('seconds').textContent = seconds;
+                document.getElementById('totalDays').textContent = totalDays;
+                document.getElementById('totalHours').textContent = totalHours;
+                
+                // 添加数字动画效果
+                animateValue('years', 0, years, 1000);
+                animateValue('months', 0, months, 1000);
+                animateValue('days', 0, days, 1000);
+                animateValue('hours', 0, hours, 1000);
+                animateValue('minutes', 0, minutes, 1000);
+                animateValue('seconds', 0, seconds, 1000);
+                animateValue('totalDays', 0, totalDays, 1000);
+                animateValue('totalHours', 0, totalHours, 1000);
+            }
+            
+            // 启动倒计时
+            function startCountdown(endDate) {
+                // 更新倒计时目标显示
+                const formattedEndDate = endDate.toLocaleString('zh-CN');
+                document.getElementById('countdownTo').innerHTML = `距离 <span class="font-medium text-primary">${formattedEndDate}</span> 还有：`;
+                
+                // 显示倒计时卡片
+                const countdownCard = document.getElementById('countdownCard');
+                countdownCard.classList.remove('opacity-0', 'translate-y-4');
+                countdownCard.classList.add('opacity-100', 'translate-y-0');
+                document.getElementById('countdown').classList.remove('hidden');
+                document.getElementById('countdownCompleted').classList.add('hidden');
+                
+                // 滚动到倒计时卡片
+                countdownCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+                // 清除之前的倒计时
+                if (window.countdownInterval) {
+                    clearInterval(window.countdownInterval);
+                }
+                
+                // 更新倒计时
+                updateCountdown(endDate);
+                
+                // 设置倒计时定时器
+                window.countdownInterval = setInterval(() => {
+                    const now = new Date();
+                    const diffMs = endDate - now;
+                    
+                    if (diffMs <= 0) {
+                        clearInterval(window.countdownInterval);
+                        showCountdownCompleted();
+                        return;
+                    }
+                    
+                    updateCountdown(endDate);
+                }, 1000);
+            }
+            
+            // 更新倒计时显示
+            function updateCountdown(endDate) {
+                const now = new Date();
+                const diffMs = endDate - now;
+                
+                if (diffMs <= 0) {
+                    showCountdownCompleted();
+                    return;
+                }
+                
+                const days = Math.floor(diffMs / 86400000);
+                const hours = Math.floor((diffMs % 86400000) / 3600000);
+                const minutes = Math.floor((diffMs % 3600000) / 60000);
+                const seconds = Math.floor((diffMs % 60000) / 1000);
+                
+                document.getElementById('cdDays').textContent = days.toString().padStart(2, '0');
+                document.getElementById('cdHours').textContent = hours.toString().padStart(2, '0');
+                document.getElementById('cdMinutes').textContent = minutes.toString().padStart(2, '0');
+                document.getElementById('cdSeconds').textContent = seconds.toString().padStart(2, '0');
+            }
+            
+            // 显示倒计时完成
+            function showCountdownCompleted() {
+                document.getElementById('countdown').classList.add('hidden');
+                document.getElementById('countdownCompleted').classList.remove('hidden');
+            }
+            
+            // 隐藏倒计时
+            function hideCountdown() {
+                const countdownCard = document.getElementById('countdownCard');
+                countdownCard.classList.remove('opacity-100', 'translate-y-0');
+                countdownCard.classList.add('opacity-0', 'translate-y-4');
+                
+                if (window.countdownInterval) {
+                    clearInterval(window.countdownInterval);
+                }
+            }
+            
+            // 重置表单
+            function resetForm() {
+                const today = new Date();
+                const dateString = today.toISOString().split('T')[0];
+                const timeString = today.toTimeString().split(' ')[0].substring(0, 5);
+                
+                document.getElementById('startDate').value = dateString;
+                document.getElementById('startTime').value = timeString;
+                document.getElementById('endDate').value = dateString;
+                document.getElementById('endTime').value = timeString;
+                
+                // 隐藏结果卡片（带动画）
+                const resultCard = document.getElementById('resultCard');
+                resultCard.classList.remove('opacity-100', 'translate-y-0');
+                resultCard.classList.add('opacity-0', 'translate-y-4');
+                
+                // 隐藏倒计时卡片
+                hideCountdown();
+                
+                // 滚动到表单顶部
+                document.getElementById('timeForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            
+            // 显示错误提示模态框
+            function showErrorModal(message) {
+                document.getElementById('errorMessage').textContent = message;
+                const modal = document.getElementById('errorModal');
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                modal.querySelector('div').classList.remove('scale-95');
+                modal.querySelector('div').classList.add('scale-100');
+            }
+            
+            // 隐藏错误提示模态框
+            function hideErrorModal() {
+                const modal = document.getElementById('errorModal');
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                modal.querySelector('div').classList.remove('scale-100');
+                modal.querySelector('div').classList.add('scale-95');
+            }
+            
+            // 数字动画效果
+            function animateValue(id, start, end, duration) {
+                const obj = document.getElementById(id);
+                let startTime = null;
+                
+                function animation(currentTime) {
+                    if (startTime === null) startTime = currentTime;
+                    const timeElapsed = currentTime - startTime;
+                    const progress = Math.min(timeElapsed / duration, 1);
+                    const value = Math.floor(progress * (end - start) + start);
+                    obj.textContent = value;
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(animation);
+                    }
+                }
+                
+                requestAnimationFrame(animation);
+            }
+        });
+    </script>
+</body>
+</html>
+    
